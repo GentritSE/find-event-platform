@@ -119,6 +119,33 @@ class EventsRepository {
     return rows[0] || null;
   }
 
+  async updateById(id, data) {
+    const fields = [];
+    const params = [];
+
+    const allowed = ['title', 'description', 'category', 'location', 'start_at', 'end_at', 'price_eur', 'capacity', 'cover_image_url', 'status'];
+    for (const key of allowed) {
+      if (data[key] !== undefined) {
+        params.push(data[key]);
+        fields.push(`${key} = $${params.length}`);
+      }
+    }
+
+    if (fields.length === 0) return null;
+
+    params.push(new Date().toISOString());
+    fields.push(`updated_at = $${params.length}`);
+
+    params.push(id);
+    const { rows } = await db.query(
+      `UPDATE events SET ${fields.join(', ')}
+       WHERE id = $${params.length}
+       RETURNING *`,
+      params
+    );
+    return rows[0] || null;
+  }
+
   async updateStatus(id, status, organizerId = null) {
     let query, params;
     if (organizerId) {

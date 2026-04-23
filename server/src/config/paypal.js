@@ -61,10 +61,15 @@ async function createOrder(amount, currency = 'USD', returnUrl, cancelUrl) {
 }
 
 async function captureOrder(orderId) {
+  // Validate orderId to prevent SSRF - PayPal order IDs are alphanumeric
+  if (!orderId || !/^[A-Z0-9]+$/i.test(orderId)) {
+    throw new Error('Invalid PayPal order ID format');
+  }
+
   const accessToken = await getAccessToken();
 
   const response = await fetch(
-    `${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`,
+    `${PAYPAL_BASE_URL}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`,
     {
       method: 'POST',
       headers: {

@@ -40,16 +40,12 @@ class EventsService {
   async updateEvent(id, organizerId, body, role) {
     const data = updateEventSchema.parse(body);
     let updated;
+
     if (role === 'admin') {
-      updated = await eventsRepository.update(id, organizerId, data);
-      if (!updated) {
-        const { rows } = await require('../../config/db').query(
-          `UPDATE events SET ${Object.keys(data).map((k, i) => `${k}=$${i + 1}`).join(', ')}, updated_at=NOW() WHERE id=$${Object.keys(data).length + 1} RETURNING *`,
-          [...Object.values(data), id]
-        );
-        updated = rows[0];
-      }
+      // Admin can update any event regardless of organizer
+      updated = await eventsRepository.updateById(id, data);
     } else {
+      // Organizer can only update their own events
       updated = await eventsRepository.update(id, organizerId, data);
     }
 

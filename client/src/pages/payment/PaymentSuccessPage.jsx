@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { paymentsService } from '../../services/paymentsService'
@@ -9,14 +9,13 @@ import toast from 'react-hot-toast'
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const [captured, setCaptured] = useState(false)
 
   const paypalOrderId = searchParams.get('token')
+  const hasCaptured = useRef(false)
 
   const captureMutation = useMutation({
     mutationFn: () => paymentsService.capturePayPalOrder({ paypal_order_id: paypalOrderId }),
     onSuccess: () => {
-      setCaptured(true)
       toast.success('Payment successful! Your ticket is ready.')
     },
     onError: (err) => {
@@ -26,9 +25,12 @@ export default function PaymentSuccessPage() {
   })
 
   useEffect(() => {
-    if (paypalOrderId && !captured) {
+    if (paypalOrderId && !hasCaptured.current) {
+      hasCaptured.current = true
       captureMutation.mutate()
     }
+    // captureMutation is stable (useMutation), paypalOrderId is from URL params
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paypalOrderId])
 
   if (captureMutation.isPending) {
