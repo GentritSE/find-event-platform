@@ -14,5 +14,11 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "overrides": {
+    "uuid": "^14.0.0",
+    "imagekit": {
+      "uuid": "^14.0.0"
+    }
   }
 }
