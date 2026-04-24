@@ -16,8 +16,21 @@ async function migrate() {
     const filePath = path.join(migrationsDir, file);
     const sql = fs.readFileSync(filePath, 'utf8');
     console.log(`[migrate] Running: ${file}`);
-    await db.query(sql);
-    console.log(`[migrate] Done: ${file}`);
+
+    // Run each migration file inside its own transaction so that a failure
+    // rolls back the partial changes and leaves the DB in a consistent state.
+    const client = await db.getClient();
+    try {
+      await client.query('BEGIN');
+      await client.query(sql);
+      await client.query('COMMIT');
+      console.log(`[migrate] Done: ${file}`);
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   console.log('[migrate] All migrations completed.');

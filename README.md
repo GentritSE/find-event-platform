@@ -58,38 +58,75 @@ find-event-platform/
 
 ### 1. Clone and install
 
+**bash / macOS / Linux**
 ```bash
 git clone https://github.com/GentritSE/find-event-platform.git
 cd find-event-platform
-cd server && npm install && cd ..
-cd client && npm install && cd ..
+npm install
 ```
+
+**Windows PowerShell**
+```powershell
+git clone https://github.com/GentritSE/find-event-platform.git
+Set-Location find-event-platform
+npm install
+```
+
+`npm install` at the repo root installs all workspace packages (`client/` and
+`server/`) in one step thanks to npm workspaces.
 
 ### 2. Configure environment
 
+**bash / macOS / Linux**
 ```bash
 cp .env.example server/.env
 # Edit server/.env with your actual credentials
 ```
 
+**Windows PowerShell**
+```powershell
+Copy-Item .env.example server/.env
+# Edit server\.env with your actual credentials
+```
+
+> The defaults in `.env.example` already match the Docker Compose service, so
+> `npm run migrate` works out-of-the-box without editing the file.
+
 ### 3. Start PostgreSQL
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
+
+> **Note:** `docker compose` (v2, built-in plugin) is the current command.
+> The older stand-alone `docker-compose` binary is deprecated. If you only have
+> the old binary, use `docker-compose up -d` instead.
 
 ### 4. Run database migrations
 
+From the **repo root** (npm workspace):
+```bash
+npm run migrate --workspace=server
+```
+
+Or from inside `server/`:
 ```bash
 cd server
 npm run migrate
 ```
 
+Migrations are **safe to re-run** on a fresh database:
+- `000_repair_legacy.sql` detects obsolete integer-ID tables and drops them so
+  that migration `001` can recreate them with correct UUID types and FK
+  constraints (`orders_user_id_fkey` etc.). It is a no-op when the DB is empty
+  or already has the correct UUID schema.
+- `001_initial_schema.sql` uses `CREATE TABLE IF NOT EXISTS` and
+  `CREATE INDEX IF NOT EXISTS` guards, making it fully idempotent.
+
 ### 5. Start development servers
 
-From the root (requires `concurrently`):
+From the root (uses `concurrently`):
 ```bash
-npm install
 npm run dev
 ```
 
@@ -105,6 +142,34 @@ cd client && npm run dev
 This starts:
 - Backend on `http://localhost:5000`
 - Frontend on `http://localhost:5173`
+
+---
+
+## Resetting the local database
+
+If you need a completely clean slate (e.g. after schema changes or a botched
+first run):
+
+```bash
+# Drop all application tables
+npm run db:reset --workspace=server
+
+# Recreate the schema
+npm run migrate --workspace=server
+```
+
+Or from inside `server/`:
+```bash
+cd server
+npm run db:reset
+npm run migrate
+```
+
+> **Windows PowerShell**
+> ```powershell
+> npm run db:reset --workspace=server
+> npm run migrate --workspace=server
+> ```
 
 ---
 
