@@ -6,12 +6,12 @@ export default {
     extend: {
       colors: {
         dark: {
-          900: '#0a0a0f',
-          800: '#0f0f17',
-          700: '#16161f',
-          600: '#1e1e2e',
-          500: '#2a2a3e',
-          400: '#363652',
+          900: 'rgb(var(--c900) / <alpha-value>)',
+          800: 'rgb(var(--c800) / <alpha-value>)',
+          700: 'rgb(var(--c700) / <alpha-value>)',
+          600: 'rgb(var(--c600) / <alpha-value>)',
+          500: 'rgb(var(--c500) / <alpha-value>)',
+          400: 'rgb(var(--c400) / <alpha-value>)',
         },
         accent: {
           purple: '#8b5cf6',

@@ -3,7 +3,7 @@ import translations from './translations'
 
 const I18nContext = createContext(null)
 
-const DEFAULT_LANG = 'sq'
+const DEFAULT_LANG = 'en'
 
 export function I18nProvider({ children }) {
   const [lang, setLang] = useState(() => {
