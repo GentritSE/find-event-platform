@@ -1,10 +1,12 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { Calendar, Ticket, LayoutDashboard, LogOut, Menu, X, Scan } from 'lucide-react'
+import { useTheme } from '../../hooks/useTheme'
+import { Ticket, LayoutDashboard, LogOut, Menu, X, Scan, Sun, Moon } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -94,8 +96,17 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Desktop Auth */}
+          {/* Desktop Auth + Theme Toggle */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-dark-600 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             {user ? (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-slate-400">
@@ -117,13 +128,22 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2 text-slate-400 hover:text-white"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* Mobile: theme toggle + menu button */}
+          <div className="md:hidden flex items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-400 hover:text-white"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              className="p-2 text-slate-400 hover:text-white"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
