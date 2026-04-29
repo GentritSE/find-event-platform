@@ -4,19 +4,19 @@ const ThemeContext = createContext(null)
 
 function applyTheme(theme) {
   const html = document.documentElement
-  if (theme === 'light') {
-    html.classList.remove('dark')
-    html.classList.add('light')
-  } else {
+  if (theme === 'dark') {
     html.classList.remove('light')
     html.classList.add('dark')
+  } else {
+    html.classList.remove('dark')
+    html.classList.add('light')
   }
 }
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem('theme')
-    return stored === 'light' ? 'light' : 'dark'
+    return stored === 'dark' ? 'dark' : 'light'
   })
 
   useEffect(() => {
